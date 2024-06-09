@@ -1,0 +1,5 @@
+The purpose of the automation framework is to provide maximum test coverage and reduce manual efforts. below is the folder structure. testdata: user-definied libraries logs:for each tc,recorded the infomration/error message for ech test step.reports:the genea
+genearted pytest html report and pytest xml report will be placed here. coomon: define the functions which are comon to all the test modules. example: conftest: define the fuxture functions in this file to make them accessible across multiple test files. 
+below are the test files which start the execution of the program 
+install all the required librarues using the below command.
+the below command is useful to trigger the execution.
