@@ -1,0 +1,43 @@
+from airflow import DAG
+from airflow.operators.dummy import DummyOperator
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from datetime import datetime, timedelta
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
+with DAG(
+    'kubernetes_pod_operator_example',
+    default_args=default_args,
+    description='A simple KubernetesPodOperator DAG',
+    schedule_interval=timedelta(days=1),
+    start_date=datetime(2023, 1, 1),
+    catchup=False,
+) as dag:
+
+    start = DummyOperator(task_id='start')
+
+    run_in_pod = KubernetesPodOperator(
+        namespace='default',  # Change to the namespace where you want to run the pod
+        image="python:3.8-slim",
+        cmds=["python", "-c"],
+        arguments=["print('hello world')"],
+        labels={"foo": "bar"},
+        name="run-in-pod",
+        task_id="run_in_pod",
+        get_logs=True,
+        is_delete_operator_pod=True
+        # in_cluster=True,
+        # cluster_context='your-cluster-context',  # Set this if running outside the cluster
+        # config_file='/path/to/kube/config',  # Path to your kube config if running outside the cluster
+    )
+
+    end = DummyOperator(task_id='end')
+
+    start >> run_in_pod >> end
